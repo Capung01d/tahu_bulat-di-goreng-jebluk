@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MazkiplayCyberScurity | Red Team Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'JetBrains+Mono', monospace;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+        }
+
+        .cyber-gradient {
+            background: linear-gradient(135deg, #1a1a1a 0%, #050505 100%);
+        }
+
+        .flag-animation {
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(to bottom, #ff0000 50%, #ffffff 50%);
+            border: 1px solid #333;
+            position: relative;
+            animation: wave 2s infinite ease-in-out;
+            transform-origin: left;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: skewY(0deg); }
+            50% { transform: skewY(5deg) scaleX(1.05); }
+        }
+
+        .glitch-text:hover {
+            text-shadow: 2px 0 #ff0000, -2px 0 #00ff00;
+        }
+
+        .tool-card {
+            transition: all 0.3s ease;
+            border: 1px solid #333;
+        }
+
+        .tool-card:hover {
+            border-color: #ff0000;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.1);
+        }
+
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- LOGIN SECTION -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-[#111] p-8 rounded-xl border border-red-900 shadow-2xl">
+            <div class="flex flex-col items-center mb-8">
+                <div class="flag-animation mb-4"></div>
+                <h1 class="text-2xl font-bold text-red-600 mb-2">SEGO MEGONO</h1>
+                <p class="text-gray-500 text-sm text-center">Selamat Datang di Tools Red Team <br><span class="text-white font-bold text-lg">MazkiplayCyberScurity</span></p>
+            </div>
+            
+            <div class="space-y-4">
+                <label class="block text-xs uppercase tracking-widest text-gray-400">Access Key Required</label>
+                <input type="password" id="access-key" placeholder="••••••••" 
+                    class="w-full bg-black border border-gray-800 p-3 rounded focus:outline-none focus:border-red-600 transition-colors text-center text-xl tracking-widest">
+                <button onclick="verifyKey()" 
+                    class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded transition-all duration-300 transform active:scale-95">
+                    INITIATE SYSTEM
+                </button>
+            </div>
+            <p id="error-msg" class="text-red-500 text-xs mt-4 text-center hidden">Access Denied: Invalid Authentication Key</p>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="main-dashboard" class="hidden-section">
+        <!-- Sidebar / Header -->
+        <nav class="border-b border-gray-800 bg-[#0d0d0d] p-4 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center space-x-4">
+                <div class="flag-animation scale-75"></div>
+                <span class="font-bold text-xl tracking-tighter">MAZKIPLAY<span class="text-red-600">CYBER</span></span>
+            </div>
+            <div class="flex items-center space-x-6">
+                <span class="text-xs text-green-500 animate-pulse"><i class="fas fa-circle mr-1"></i> System Online</span>
+                <button onclick="logout()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto p-6">
+            <header class="mb-10">
+                <h2 class="text-3xl font-bold mb-2">Red Team <span class="text-red-600">Operations</span></h2>
+                <p class="text-gray-500">Pilih modul navigasi untuk memulai pengujian penetrasi dan pengumpulan informasi.</p>
+            </header>
+
+            <!-- Tools Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Opsi 1: Phone OSINT -->
+                <div onclick="openTool('Phone OSINT')" class="tool-card bg-[#111] p-6 rounded-lg cursor-pointer">
+                    <div class="text-red-600 text-3xl mb-4"><i class="fas fa-phone-alt"></i></div>
+                    <h3 class="text-lg font-bold mb-2">01. Phone Intelligence</h3>
+                    <p class="text-sm text-gray-400 text-justify">Pencarian informasi mendalam nomor ponsel +62 menggunakan Abstract API & OpenCellID.</p>
+                </div>
+
+                <!-- Opsi 2: Social Media Checker -->
+                <div onclick="openTool('Social Media')" class="tool-card bg-[#111] p-6 rounded-lg cursor-pointer">
+                    <div class="text-blue-500 text-3xl mb-4"><i class="fas fa-share-alt"></i></div>
+                    <h3 class="text-lg font-bold mb-2">02. Social Tracer</h3>
+                    <p class="text-sm text-gray-400 text-justify">Identifikasi akun media sosial yang terhubung dengan nomor target.</p>
+                </div>
+
+                <!-- Opsi 3: Location Tracker -->
+                <div onclick="openTool('Geolocation')" class="tool-card bg-[#111] p-6 rounded-lg cursor-pointer">
+                    <div class="text-green-500 text-3xl mb-4"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3 class="text-lg font-bold mb-2">03. Network Triangulation</h3>
+                    <p class="text-sm text-gray-400 text-justify">Pelacakan lokasi melalui Cell ID dan koordinat PositionStack.</p>
+                </div>
+
+                <!-- Opsi 4: WhatsApp OSINT -->
+                <div onclick="openTool('WhatsApp')" class="tool-card bg-[#111] p-6 rounded-lg cursor-pointer">
+                    <div class="text-emerald-500 text-3xl mb-4"><i class="fab fa-whatsapp"></i></div>
+                    <h3 class="text-lg font-bold mb-2">04. WA Intelligence</h3>
+                    <p class="text-sm text-gray-400 text-justify">Mendapatkan foto profil, status, dan log aktivitas WhatsApp target.</p>
+                </div>
+
+                <!-- Opsi 5: Identity Lookup -->
+                <div onclick="openTool('Identity')" class="tool-card bg-[#111] p-6 rounded-lg cursor-pointer">
+                    <div class="text-yellow-500 text-3xl mb-4"><i class="fas fa-id-card"></i></div>
+                    <h3 class="text-lg font-bold mb-2">05. Dukcapil Database</h3>
+                    <p class="text-sm text-gray-400 text-justify">Query informasi NIK/KK melalui database integrasi (Simulasi).</p>
+                </div>
+
+                <!-- Opsi 6: Phishing Suite -->
+                <div onclick="openTool('Phishing')" class="tool-card bg-red-900/20 border-red-700 border p-6 rounded-lg cursor-pointer">
+                    <div class="text-red-500 text-3xl mb-4"><i class="fas fa-fish"></i></div>
+                    <h3 class="text-lg font-bold mb-2 text-red-500">06. Phishing Lab</h3>
+                    <p class="text-sm text-gray-400 text-justify">Generator link phising (FB, IG, Dana, M-Banking) untuk Security Awareness Training.</p>
+                </div>
+
+            </div>
+
+            <!-- Output Area -->
+            <div id="output-container" class="mt-12 bg-black border border-gray-800 rounded-lg p-6 hidden-section">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
+                    <h4 class="text-red-600 font-bold uppercase text-xs tracking-widest" id="tool-title">CONSOLE_OUTPUT</h4>
+                    <div class="space-x-2">
+                        <button onclick="downloadPDF()" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded">PDF REPORT</button>
+                        <button onclick="downloadTXT()" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded">LOG.TXT</button>
+                    </div>
+                </div>
+                
+                <div id="tool-interface" class="mb-6">
+                    <!-- Dynamic form based on tool selection -->
+                </div>
+
+                <div id="console-log" class="font-mono text-sm text-green-500 overflow-y-auto max-h-64 p-2">
+                    [SYSTEM] Awaiting user input...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sego Megono AI Assistant (OpenAI Integration) -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button onclick="toggleAI()" class="bg-red-600 w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
+            <i class="fas fa-robot text-2xl"></i>
+        </button>
+    </div>
+
+    <script>
+        const API_KEYS = {
+            abstractPhone: "23ed5b5d4b6f407495cea0dce6aa140a",
+            abstractEmail: "fa6b55dfb18f4e5fbbea2aabd8bcb6d5",
+            ipIntel: "55246d2fef1541f4bd4ab39f3f9acc60",
+            positionStack: "7e892d1c3acc5387655e6c1fc53279a3",
+            openCellID: "7185fd489929ebc7a439f5ad4f5890cd"
+        };
+
+        function verifyKey() {
+            const input = document.getElementById('access-key').value;
+            const error = document.getElementById('error-msg');
+            
+            if (input === 'Red_Team2114') {
+                document.getElementById('login-screen').classList.add('hidden-section');
+                document.getElementById('main-dashboard').classList.remove('hidden-section');
+            } else {
+                error.classList.remove('hidden');
+                setTimeout(() => error.classList.add('hidden'), 3000);
+            }
+        }
+
+        function openTool(name) {
+            const container = document.getElementById('output-container');
+            const interface = document.getElementById('tool-interface');
+            const title = document.getElementById('tool-title');
+            
+            container.classList.remove('hidden-section');
+            title.innerText = `OPERATION: ${name.toUpperCase()}`;
+            
+            let html = '';
+            if(name === 'Phone OSINT') {
+                html = `
+                    <div class="flex gap-2">
+                        <input type="text" id="target-phone" placeholder="62812xxxx" class="flex-1 bg-[#111] border border-gray-700 p-2 rounded focus:outline-none focus:border-red-600">
+                        <button onclick="executePhoneScan()" class="bg-red-700 px-6 py-2 rounded font-bold">SCAN</button>
+                    </div>
+                `;
+            } else if(name === 'Phishing') {
+                html = `
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="genPhish('Dana')" class="bg-[#111] border border-gray-700 p-2 text-xs rounded hover:border-red-600">DANA eWallet</button>
+                        <button onclick="genPhish('Brimo')" class="bg-[#111] border border-gray-700 p-2 text-xs rounded hover:border-red-600">BRI Brimo</button>
+                        <button onclick="genPhish('FB')" class="bg-[#111] border border-gray-700 p-2 text-xs rounded hover:border-red-600">Facebook Login</button>
+                        <button onclick="genPhish('WA')" class="bg-[#111] border border-gray-700 p-2 text-xs rounded hover:border-red-600">WA Link Device</button>
+                    </div>
+                `;
+            } else {
+                html = `<p class="text-gray-500 italic text-sm">Modul ${name} sedang dalam sinkronisasi API...</p>`;
+            }
+            
+            interface.innerHTML = html;
+        }
+
+        async function executePhoneScan() {
+            const phone = document.getElementById('target-phone').value;
+            const log = document.getElementById('console-log');
+            
+            log.innerHTML = `[INF] Initiating Scan on target: ${phone}...<br>`;
+            
+            try {
+                const response = await fetch(`https://phoneintelligence.abstractapi.com/v1/?api_key=${API_KEYS.abstractPhone}&phone=${phone}`);
+                const data = await response.json();
+                
+                log.innerHTML += `<br>[RESULT] Location: ${data.location || 'Unknown'}<br>`;
+                log.innerHTML += `[RESULT] Carrier: ${data.carrier || 'Unknown'}<br>`;
+                log.innerHTML += `[RESULT] Type: ${data.type || 'Unknown'}<br>`;
+                log.innerHTML += `[RESULT] Valid: ${data.valid}<br>`;
+                log.innerHTML += `<br>[SUCCESS] Report ready for download.`;
+            } catch (err) {
+                log.innerHTML += `<span class="text-red-500">[ERROR] Connection to AbstractAPI failed.</span>`;
+            }
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const logContent = document.getElementById('console-log').innerText;
+            
+            doc.setFont("courier", "bold");
+            doc.setTextColor(255, 0, 0);
+            doc.text("SEGO MEGONO CYBER SECURITY - PENTEST REPORT", 10, 10);
+            doc.setFont("courier", "normal");
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Timestamp: ${new Date().toLocaleString()}`, 10, 20);
+            doc.text("--------------------------------------------------", 10, 25);
+            doc.text(logContent, 10, 35);
+            
+            doc.save("Mazkiplay_Pentest_Report.pdf");
+        }
+
+        function downloadTXT() {
+            const content = document.getElementById('console-log').innerText;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Log_Activity_${Date.now()}.txt`;
+            a.click();
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        function toggleAI() {
+            alert("Sego Megono AI: 'Siap komandan, fitur asisten AI sedang melakukan handshake dengan OpenAI GPT-4.'");
+        }
+    </script>
+</body>
+</html>
