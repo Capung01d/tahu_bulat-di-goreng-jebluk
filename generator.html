@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 - Payload Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+        // CONFIG FIREBASE KAMU
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMmcOF9E5LA8Cu3dxvstyPCzjd_ZZ_NIM",
+            authDomain: "tahu-bulat-dad9d.firebaseapp.com",
+            projectId: "tahu-bulat-dad9d",
+            appId: "1:784968244179:web:fbf29b0745bfdc5fb52d26"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = "tahu-bulat-c2-pro";
+
+        window.generatePayload = async () => {
+            const btn = document.getElementById('gen-btn');
+            const status = document.getElementById('status-box');
+            const appName = document.getElementById('app-name').value;
+            
+            btn.disabled = true;
+            status.classList.remove('hidden');
+            status.innerHTML = `<p class="text-blue-400 animate-pulse font-bold">>>> Initializing Compiler Engine...</p>`;
+
+            try {
+                await signInAnonymously(auth);
+                
+                // Tahap 1: Obfuscation & Permission Injection
+                setTimeout(() => {
+                    status.innerHTML += `<p class="text-green-500">[OK] Injecting SMS_RECEIVE & SMS_READ permissions...</p>`;
+                    status.scrollTop = status.scrollHeight;
+                }, 1000);
+
+                // Tahap 2: Firebase Bridge Hooking
+                setTimeout(() => {
+                    status.innerHTML += `<p class="text-green-500">[OK] Hooking Firebase Bridge to project: ${firebaseConfig.projectId}</p>`;
+                    status.scrollTop = status.scrollHeight;
+                }, 2000);
+
+                // Tahap 3: Finalizing APK Architecture
+                setTimeout(async () => {
+                    status.innerHTML += `<p class="text-yellow-500">[!] Finalizing ${appName}.apk architecture...</p>`;
+                    status.scrollTop = status.scrollHeight;
+                    
+                    // Mengirim log ke Dashboard C2 secara real-time
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), {
+                        message: `New Payload Built: ${appName}.apk (SMS Sniper Module Active)`,
+                        type: "RAT",
+                        timestamp: serverTimestamp()
+                    });
+
+                    status.innerHTML += `<div class="mt-4 p-4 bg-green-900/40 border border-green-500 rounded text-center animate-in fade-in duration-500">
+                        <p class="text-white font-black text-sm uppercase">Payload Simulation Ready!</p>
+                        <p class="text-[10px] text-gray-400 mb-3 mt-1">Aplikasi ini dirancang untuk memantau SMS OTP dan mengirimkannya ke Dashboard secara otomatis.</p>
+                        <button class="bg-green-600 hover:bg-green-500 text-black px-6 py-2 rounded-full text-[10px] font-black tracking-widest transition-all" onclick="alert('Ini adalah simulasi edukasi. File APK fisik tidak diunduh untuk alasan keamanan.')">UNDUH SIMULASI APK</button>
+                    </div>`;
+                    btn.disabled = false;
+                    status.scrollTop = status.scrollHeight;
+                }, 3500);
+
+            } catch (err) {
+                status.innerHTML += `<p class="text-red-500 font-bold">[ERROR] Build Failed: ${err.message}</p>`;
+                btn.disabled = false;
+            }
+        };
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #000; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #065f46; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#050505] text-[#00ff00] font-mono min-h-screen flex items-center justify-center p-4">
+    <div class="fixed inset-0 pointer-events-none opacity-5 bg-[linear-gradient(rgba(0,255,0,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.1)_1px,transparent_1px)] [background-size:40px_40px]"></div>
+
+    <div class="max-w-xl w-full border-2 border-green-900 rounded-2xl p-8 bg-black/80 backdrop-blur-xl relative z-10 shadow-[0_0_40px_rgba(0,255,0,0.1)]">
+        <header class="mb-10 border-b border-green-900/50 pb-6 text-center">
+            <div class="inline-block p-3 bg-red-600/10 rounded-full mb-4">
+                <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"/><path fill-rule="evenodd" d="M11 2H9v1h2V2zM6 4v1h8V4a2 2 0 00-2-2H8a2 2 0 00-2 2zM2 9a2 2 0 012-2h1v10H4a2 2 0 01-2-2V9zm15-2a2 2 0 012 2v6a2 2 0 01-2 2h-1V7h1zM6 7v10h8V7H6z" clip-rule="evenodd"/></svg>
+            </div>
+            <h1 class="text-3xl font-black tracking-tighter text-white">
+                PAYLOAD <span class="text-red-600 italic underline decoration-2">FORGE</span>
+            </h1>
+            <p class="text-[9px] text-green-700 mt-2 uppercase tracking-[0.5em] font-bold">Automated SMS Interception Engine v2.0</p>
+        </header>
+
+        <div class="space-y-8">
+            <div class="relative">
+                <label class="absolute -top-2 left-3 bg-black px-2 text-[9px] text-green-500 uppercase font-bold tracking-widest">Target App Alias</label>
+                <input type="text" id="app-name" value="DANA_Update_v4" 
+                    class="w-full bg-black border border-green-900/50 rounded-lg p-4 text-green-400 outline-none focus:border-green-500 transition-all font-bold">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 border border-green-900/20 rounded-xl bg-green-950/5">
+                    <p class="text-[8px] text-gray-500 uppercase mb-2 font-black tracking-tighter">Injection Rights</p>
+                    <p class="text-[10px] text-green-400 font-bold flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> SYSTEM_SMS_READ
+                    </p>
+                </div>
+                <div class="p-4 border border-green-900/20 rounded-xl bg-green-950/5">
+                    <p class="text-[8px] text-gray-500 uppercase mb-2 font-black tracking-tighter">Stealth Protocol</p>
+                    <p class="text-[10px] text-blue-500 font-bold flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> ICON_HIDER_MOD
+                    </p>
+                </div>
+            </div>
+
+            <button id="gen-btn" onclick="generatePayload()" 
+                class="w-full bg-[#00ff00] text-black font-black py-5 rounded-xl hover:bg-white transition-all uppercase tracking-[0.2em] text-xs shadow-[0_0_20px_rgba(0,255,0,0.2)] active:scale-95">
+                GENERATE SIMULATED APK
+            </button>
+
+            <div id="status-box" class="hidden bg-black/60 border border-green-900/30 rounded-xl p-5 h-56 overflow-y-auto text-[10px] font-mono space-y-2 custom-scrollbar shadow-inner">
+                <!-- Build process logs -->
+            </div>
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-green-900/20 text-center">
+            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-3">Technical Architecture</p>
+            <div class="flex justify-center gap-8 opacity-40 grayscale">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/Android_robot.svg" class="h-5" alt="Android">
+                <img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png" class="h-5" alt="Firebase">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Java_Logo.svg" class="h-5" alt="Java">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
