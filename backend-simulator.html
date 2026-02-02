@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 Control Center | Sego Megono</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
+        body { font-family: 'JetBrains+Mono', monospace; background-color: #050505; color: #00ff00; }
+        .terminal-box { background: rgba(0, 20, 0, 0.9); border: 1px solid #004400; }
+        .data-row:hover { background: rgba(0, 255, 0, 0.1); }
+        .status-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .scanline {
+            width: 100%; height: 2px; background: rgba(0, 255, 0, 0.1);
+            position: absolute; animation: move 8s linear infinite;
+        }
+        @keyframes move { from { top: 0; } to { top: 100%; } }
+    </style>
+</head>
+<body class="p-4 md:p-8 overflow-x-hidden">
+    <div class="scanline"></div>
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-green-900 pb-6">
+        <div>
+            <h1 class="text-2xl font-black tracking-tighter text-white">C2 COMMAND & <span class="text-red-600">CONTROL</span></h1>
+            <p class="text-xs text-green-700 font-bold uppercase tracking-[0.3em]">Sego Megono Operational Intelligence</p>
+        </div>
+        <div class="flex gap-4">
+            <div class="text-right">
+                <p class="text-[10px] text-gray-500 uppercase">Listener Status</p>
+                <p class="text-sm font-bold text-green-400 status-pulse"><i class="fas fa-satellite-dish mr-2"></i>ACTIVE ON PORT 443</p>
+            </div>
+            <div class="h-10 w-[1px] bg-green-900"></div>
+            <div class="text-right">
+                <p class="text-[10px] text-gray-500 uppercase">Active Victims</p>
+                <p id="victim-count" class="text-xl font-black text-white">0</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left Column: Result Grabber (Phishing Data) -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="terminal-box rounded-lg overflow-hidden">
+                <div class="bg-green-950/30 px-4 py-2 flex justify-between items-center border-b border-green-900">
+                    <span class="text-xs font-bold uppercase"><i class="fas fa-user-secret mr-2"></i>Inbound Credentials (Phishing Result)</span>
+                    <button onclick="clearResults()" class="text-[10px] bg-red-900/50 hover:bg-red-800 px-2 py-1 rounded">CLEAR LOG</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-black/50 text-green-600 uppercase">
+                            <tr>
+                                <th class="p-3">Platform</th>
+                                <th class="p-3">Username/Email</th>
+                                <th class="p-3">Password/PIN</th>
+                                <th class="p-3">IP Address</th>
+                                <th class="p-3">Device</th>
+                                <th class="p-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result-table-body">
+                            <!-- Data Phishing Akan Muncul Di Sini -->
+                            <tr class="data-row border-b border-green-950/30">
+                                <td class="p-3 text-gray-500 italic" colspan="6">Menunggu data masuk dari link phishing...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RAT Monitoring (Android/PC) -->
+            <div class="terminal-box rounded-lg overflow-hidden">
+                <div class="bg-green-950/30 px-4 py-2 border-b border-green-900 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase"><i class="fas fa-mobile-alt mr-2"></i>Infected Devices (RAT Listener)</span>
+                </div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="rat-devices">
+                    <p class="text-xs text-gray-600 italic">Belum ada perangkat terhubung.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Control Panel & Maps -->
+        <div class="space-y-6">
+            <div class="terminal-box rounded-lg p-4">
+                <h3 class="text-xs font-bold mb-4 uppercase border-b border-green-900 pb-2">Operational Controls</h3>
+                <div class="space-y-3">
+                    <button onclick="simulateInbound()" class="w-full bg-green-800 hover:bg-green-700 text-black font-bold py-2 rounded text-xs transition-all uppercase">
+                        Test Phishing Inbound
+                    </button>
+                    <button onclick="simulateInfection()" class="w-full bg-red-800 hover:bg-red-700 text-white font-bold py-2 rounded text-xs transition-all uppercase">
+                        Test RAT Infection
+                    </button>
+                </div>
+            </div>
+
+            <div class="terminal-box rounded-lg p-4 h-64 relative overflow-hidden">
+                <h3 class="text-xs font-bold mb-2 uppercase">Victim Live Map</h3>
+                <div class="absolute inset-0 mt-8 bg-black opacity-40 flex items-center justify-center">
+                    <span class="text-[10px] animate-pulse">ENCRYPTED MAP OVERLAY</span>
+                </div>
+                <!-- Placeholder for Map Visualization -->
+                <div class="w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+            </div>
+
+            <div class="terminal-box rounded-lg p-4">
+                <h3 class="text-xs font-bold mb-2 uppercase">C2 Logs</h3>
+                <div id="c2-logs" class="text-[9px] text-green-800 h-32 overflow-y-auto space-y-1 font-mono">
+                    <div>[INFO] C2 System Initialized...</div>
+                    <div>[INFO] Listening for connections...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victim Detail Modal -->
+    <div id="victim-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center p-4 z-50">
+        <div class="max-w-2xl w-full terminal-box rounded-xl p-6 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-green-500"><i class="fas fa-times"></i></button>
+            <h2 class="text-xl font-bold mb-4 text-red-500 uppercase tracking-tighter">VICTIM_TERMINAL_ACCESS</h2>
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <div class="bg-black/50 p-3 rounded">
+                    <p class="text-green-800">Filesystem Access</p>
+                    <div class="mt-2 space-y-1">
+                        <div><i class="fas fa-folder mr-2"></i> DCIM/Camera</div>
+                        <div><i class="fas fa-folder mr-2"></i> WhatsApp/Media</div>
+                        <div><i class="fas fa-file-invoice mr-2"></i> m-banking_logs.db</div>
+                    </div>
+                </div>
+                <div class="bg-black/50 p-3 rounded">
+                    <p class="text-green-800">Remote Functions</p>
+                    <div class="mt-2 grid grid-cols-2 gap-2">
+                        <button class="bg-red-900/30 border border-red-900 p-2 text-[8px] hover:bg-red-900">DUMP SMS</button>
+                        <button class="bg-red-900/30 border border-red-900 p-2 text-[8px] hover:bg-red-900">RECORD MIC</button>
+                        <button class="bg-red-900/30 border border-red-900 p-2 text-[8px] hover:bg-red-900">GET CONTACTS</button>
+                        <button class="bg-red-900/30 border border-red-900 p-2 text-[8px] hover:bg-red-900">LOCATE GPS</button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 bg-black p-3 rounded h-32 text-[10px] overflow-y-auto font-mono text-blue-500">
+                # Waiting for shell response...
+                <br>> su
+                <br>> cd /data/user/0/com.whatsapp/databases/
+                <br>> ls -la
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let victimsCount = 0;
+
+        function addC2Log(msg) {
+            const logs = document.getElementById('c2-logs');
+            const time = new Date().toLocaleTimeString();
+            logs.innerHTML = `<div>[${time}] ${msg}</div>` + logs.innerHTML;
+        }
+
+        function simulateInbound() {
+            const platforms = ['FACEBOOK', 'DANA', 'INSTAGRAM', 'BRIMO', 'GMAIL'];
+            const plat = platforms[Math.floor(Math.random() * platforms.length)];
+            const table = document.getElementById('result-table-body');
+            
+            if (victimsCount === 0) table.innerHTML = '';
+            
+            const newRow = document.createElement('tr');
+            newRow.className = 'data-row border-b border-green-900/20 animate-pulse text-white';
+            newRow.innerHTML = `
+                <td class="p-3 font-bold">${plat}</td>
+                <td class="p-3">target_${Math.floor(Math.random()*1000)}@mail.com</td>
+                <td class="p-3 font-mono">P@ssw0rd${Math.floor(Math.random()*99)}</td>
+                <td class="p-3">114.125.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}</td>
+                <td class="p-3 text-[9px] uppercase">Chrome / Android 13</td>
+                <td class="p-3"><button class="bg-green-900 px-2 py-1 rounded text-[9px]">DETAIL</button></td>
+            `;
+            table.prepend(newRow);
+            addC2Log(`[ALERT] New Data Captured via Phishing Link (${plat})`);
+            victimsCount++;
+            document.getElementById('victim-count').innerText = victimsCount;
+            
+            setTimeout(() => newRow.classList.remove('animate-pulse'), 2000);
+        }
+
+        function simulateInfection() {
+            const container = document.getElementById('rat-devices');
+            if (victimsCount === 0 || container.innerHTML.includes('Belum ada')) container.innerHTML = '';
+            
+            const id = `SM-${Math.floor(1000 + Math.random() * 9000)}`;
+            const dev = document.createElement('div');
+            dev.className = 'bg-black/80 border border-green-900 p-3 rounded flex justify-between items-center';
+            dev.innerHTML = `
+                <div>
+                    <p class="text-xs font-bold text-white">${id}</p>
+                    <p class="text-[9px] text-green-700">Oppo Reno 8 | Battery: 88%</p>
+                </div>
+                <div class="flex gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500 status-pulse"></span>
+                    <button onclick="openModal()" class="text-[9px] border border-green-800 px-2 py-1 hover:bg-green-900">CONTROL</button>
+                </div>
+            `;
+            container.prepend(dev);
+            addC2Log(`[ALERT] New RAT Socket Connected: ${id}`);
+        }
+
+        function clearResults() {
+            document.getElementById('result-table-body').innerHTML = '<tr class="data-row border-b border-green-950/30"><td class="p-3 text-gray-500 italic" colspan="6">Logs cleared. Waiting for new traffic...</td></tr>';
+            victimsCount = 0;
+            document.getElementById('victim-count').innerText = '0';
+        }
+
+        function openModal() { document.getElementById('victim-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('victim-modal').classList.add('hidden'); }
+    </script>
+</body>
+</html>
