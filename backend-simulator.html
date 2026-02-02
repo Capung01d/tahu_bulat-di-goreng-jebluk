@@ -19,14 +19,13 @@
             pointer-events: none;
         }
         @keyframes move { from { top: 0; } to { top: 100%; } }
-        
-        .tab-active { border-bottom: 2px solid #ef4444; color: white; }
-        
-        /* Simulating a mini chart */
         .bar { transition: height 0.5s ease; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #004400; }
+        
+        /* DDoS Animation */
+        .attack-glow { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); border-color: #ef4444 !important; }
     </style>
 </head>
 <body class="p-4 md:p-8 overflow-x-hidden">
@@ -79,14 +78,62 @@
                         </thead>
                         <tbody id="result-table-body">
                             <tr class="data-row border-b border-green-950/30">
-                                <td class="p-3 text-gray-500 italic" colspan="5">Menunggu data masuk dari landing page...</td>
+                                <td class="p-3 text-gray-500 italic" colspan="5">Menunggu data masuk...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Social Engineering Toolkit (Phishing Templates) -->
+            <!-- DDoS Attack Panel -->
+            <div id="ddos-panel" class="terminal-box rounded-lg overflow-hidden border-orange-900 transition-all duration-500">
+                <div class="bg-orange-950/30 px-4 py-2 border-b border-orange-900 flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase text-orange-400"><i class="fas fa-radiation mr-2"></i>DDoS Stresser (L7/L4 Flooder)</span>
+                    <span id="ddos-status" class="text-[9px] bg-orange-900 px-2 py-0.5 rounded text-white font-bold">READY</span>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="text-[10px] text-gray-500 uppercase block mb-1 font-bold">Host Target</label>
+                            <input type="text" id="ddos-host" value="1.1.1.1" class="w-full bg-black border border-orange-900 p-2 text-xs rounded outline-none text-orange-500" placeholder="Contoh: 1.1.1.1 atau gov.id">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-500 uppercase block mb-1 font-bold">Metode</label>
+                            <select id="ddos-method" class="w-full bg-black border border-orange-900 p-2 text-xs rounded outline-none text-orange-300">
+                                <option value="HTTP-GET">HTTP GET Flood (L7)</option>
+                                <option value="UDP-RAW">UDP RAW Flood (L4)</option>
+                                <option value="TCP-SYN">TCP SYN Flood</option>
+                                <option value="Bypass-CF">Cloudflare Bypass</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="ddos-btn" onclick="toggleDDoS()" class="w-full bg-orange-800 hover:bg-orange-700 text-black font-black py-2 rounded text-xs transition-all uppercase">
+                                MULAI SERANGAN
+                            </button>
+                        </div>
+                    </div>
+                    <div id="ddos-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 hidden">
+                        <div class="bg-black/40 p-2 border border-orange-900/30 rounded">
+                            <p class="text-[8px] text-gray-500 uppercase">Requests/sec</p>
+                            <p id="req-count" class="text-sm font-bold text-orange-500">0</p>
+                        </div>
+                        <div class="bg-black/40 p-2 border border-orange-900/30 rounded">
+                            <p class="text-[8px] text-gray-500 uppercase">Bandwidth</p>
+                            <p id="bw-count" class="text-sm font-bold text-orange-500">0 Mbps</p>
+                        </div>
+                        <div class="bg-black/40 p-2 border border-orange-900/30 rounded">
+                            <p class="text-[8px] text-gray-500 uppercase">Bots Active</p>
+                            <p id="bot-active-count" class="text-sm font-bold text-orange-500">0</p>
+                        </div>
+                        <div class="bg-black/40 p-2 border border-orange-900/30 rounded">
+                            <p class="text-[8px] text-gray-500 uppercase">Target Status</p>
+                            <p id="target-status" class="text-sm font-bold text-green-500">ONLINE</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Engineering Toolkit -->
             <div class="terminal-box rounded-lg overflow-hidden">
                 <div class="bg-purple-950/30 px-4 py-2 border-b border-purple-900 flex items-center justify-between">
                     <span class="text-xs font-bold uppercase text-purple-400"><i class="fas fa-envelope-open-text mr-2"></i>Social Engineering Toolkit</span>
@@ -95,7 +142,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="text-[10px] text-gray-500 uppercase block mb-1 font-bold">Pilih Skenario</label>
-                            <select id="template-select" onchange="updateTemplate()" class="w-full bg-black border border-purple-900 p-2 text-xs rounded outline-none focus:border-purple-500 text-purple-300">
+                            <select id="template-select" onchange="updateTemplate()" class="w-full bg-black border border-purple-900 p-2 text-xs rounded outline-none text-purple-300">
                                 <option value="dana_win">Undian DANA (WhatsApp)</option>
                                 <option value="bri_alert">Peringatan BRImo (Email/SMS)</option>
                                 <option value="fb_login">Login Mencurigakan FB (Email)</option>
@@ -104,7 +151,7 @@
                         </div>
                         <div>
                             <label class="text-[10px] text-gray-500 uppercase block mb-1 font-bold">Target URL</label>
-                            <input type="text" id="target-link" value="https://secure-login.net/auth" class="w-full bg-black border border-purple-900 p-2 text-xs rounded outline-none text-blue-400" placeholder="Masukkan URL Landing Page...">
+                            <input type="text" id="target-link" value="https://secure-login.net/auth" class="w-full bg-black border border-purple-900 p-2 text-xs rounded outline-none text-blue-400" placeholder="URL Landing Page...">
                         </div>
                     </div>
                     <div class="bg-black/60 border border-purple-900/50 rounded p-3">
@@ -112,30 +159,7 @@
                             <span class="text-[10px] font-bold text-purple-600 uppercase">Preview Pesan</span>
                             <button onclick="copyTemplate()" class="text-[10px] bg-purple-900 hover:bg-purple-700 px-3 py-1 rounded text-white font-bold uppercase">Salin Pesan</button>
                         </div>
-                        <div id="template-preview" class="text-[11px] text-gray-300 whitespace-pre-wrap leading-relaxed min-h-[100px] italic">
-                            Silakan pilih skenario untuk melihat template...
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botnet Multi-Command -->
-            <div class="terminal-box rounded-lg overflow-hidden">
-                <div class="bg-blue-950/30 px-4 py-2 border-b border-blue-900 flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase text-blue-400"><i class="fas fa-network-wired mr-2"></i>Broadcast Botnet Command</span>
-                    <span class="text-[9px] bg-blue-900 px-2 py-0.5 rounded text-white" id="bot-count-label">0 BOTS ONLINE</span>
-                </div>
-                <div class="p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button onclick="broadcast('WIPE_SMS')" class="bg-gray-900 hover:bg-red-900 border border-blue-900 p-3 text-[10px] font-bold uppercase transition-all">
-                            <i class="fas fa-eraser mb-2 block text-lg"></i> Wipe SMS Log
-                        </button>
-                        <button onclick="broadcast('STEAL_CONTACTS')" class="bg-gray-900 hover:bg-blue-800 border border-blue-900 p-3 text-[10px] font-bold uppercase transition-all">
-                            <i class="fas fa-address-book mb-2 block text-lg"></i> Steal Contacts
-                        </button>
-                        <button onclick="broadcast('LOCK_DEVICE')" class="bg-gray-900 hover:bg-orange-900 border border-blue-900 p-3 text-[10px] font-bold uppercase transition-all">
-                            <i class="fas fa-lock mb-2 block text-lg"></i> Ransom Lock
-                        </button>
+                        <div id="template-preview" class="text-[11px] text-gray-300 whitespace-pre-wrap leading-relaxed min-h-[100px] italic"></div>
                     </div>
                 </div>
             </div>
@@ -154,7 +178,7 @@
                     <div class="bar w-full bg-green-600/50" style="height: 60%"></div>
                     <div class="bar w-full bg-green-500/50" style="height: 50%"></div>
                     <div class="bar w-full bg-green-400/50" style="height: 80%"></div>
-                    <div class="bar w-full bg-red-600/50" style="height: 95%"></div>
+                    <div class="bar w-full bg-green-300/50" style="height: 40%"></div>
                 </div>
             </div>
 
@@ -192,7 +216,6 @@
                 <h3 class="text-xs font-bold mb-2 uppercase border-b border-green-900 pb-2">Log Sistem</h3>
                 <div id="c2-logs" class="text-[9px] text-green-800 h-48 overflow-y-auto space-y-1 font-mono">
                     <div>[INFO] C2 Diinisialisasi pada 0x00FF41</div>
-                    <div>[INFO] Listener terpasang pada Port 443</div>
                 </div>
             </div>
         </div>
@@ -202,9 +225,7 @@
     <div id="victim-modal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center p-4 z-50">
         <div class="max-w-2xl w-full terminal-box rounded-xl p-6 border-red-900">
             <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center gap-3">
-                   <h2 id="modal-victim-id" class="text-xl font-bold text-red-500 uppercase tracking-tighter"><i class="fas fa-skull-crossbones mr-3"></i>Remote System Shell</h2>
-                </div>
+                <h2 id="modal-victim-id" class="text-xl font-bold text-red-500 uppercase tracking-tighter"><i class="fas fa-skull-crossbones mr-3"></i>Remote System Shell</h2>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -214,7 +235,7 @@
                         <button onclick="spyAction('SMS')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Ambil SMS</button>
                         <button onclick="spyAction('Kamera')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Kamera Langsung</button>
                         <button onclick="spyAction('Mic')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Rekam Suara</button>
-                        <button onclick="spyAction('GPS')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Dapatkan Lokasi</button>
+                        <button onclick="spyAction('GPS')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Lokasi GPS</button>
                     </div>
                 </div>
                 <div class="bg-black/60 p-4 rounded border border-green-900/50">
@@ -222,60 +243,88 @@
                     <ul class="text-[9px] space-y-2 text-white/70">
                         <li><i class="fas fa-database mr-2"></i> WhatsApp_DB.crypt14 (Ready)</li>
                         <li><i class="fas fa-images mr-2"></i> DCIM_Camera_Upload (4.2GB)</li>
-                        <li><i class="fas fa-key mr-2"></i> browser_passwords.json</li>
                     </ul>
                 </div>
             </div>
-            <div id="shell-output" class="bg-black p-4 rounded h-40 text-[10px] overflow-y-auto font-mono text-blue-400 border border-blue-900/30">
-                # Menunggu input perintah...
-            </div>
+            <div id="shell-output" class="bg-black p-4 rounded h-40 text-[10px] overflow-y-auto font-mono text-blue-400 border border-blue-900/30"></div>
         </div>
     </div>
 
     <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-4 right-4 bg-green-900 text-white text-xs p-3 rounded shadow-lg hidden z-50">
-        Teks berhasil disalin!
-    </div>
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-900 text-white text-xs p-3 rounded shadow-lg hidden z-50"></div>
 
     <script>
         let victimsCount = 0;
         let botCount = 0;
         let capturedData = [];
+        let isAttacking = false;
+        let attackInterval;
 
         const templates = {
-            dana_win: `[DANA KAGET] Selamat! Kamu mendapatkan saldo DANA Rp2.000.000. Segera klaim sebelum hangus dalam 10 menit!
-
-Klaim di sini: [LINK]
-
-*Pastikan Anda terhubung ke akun DANA Anda.*`,
-            bri_alert: `[BRImo NOTIFIKASI] Akun Anda terdeteksi login di perangkat lain pada 02:30 WIB. Jika ini bukan Anda, segera lakukan verifikasi keamanan untuk mencegah pembobolan saldo.
-
-Verifikasi di: [LINK]
-
-Abaikan jika ini adalah Anda.`,
-            fb_login: `Subjek: Tindakan Diperlukan: Login Facebook Baru dari Lokasi Tak Dikenal
-
-Halo, Kami mendeteksi login ke akun Facebook Anda dari Chrome di Android (Jakarta, ID). 
-
-Jika ini bukan Anda, silakan ikuti tautan di bawah ini untuk mengamankan akun Anda:
-[LINK]
-
-Tim Keamanan Facebook.`,
-            package: `Halo, saya Kurir J&T Express. Paket dengan nomor resi JT90123849xx atas nama Anda belum bisa dikirim karena alamat kurang lengkap. 
-
-Mohon lengkapi alamat dan konfirmasi di sini: [LINK]
-
-Terima kasih.`
+            dana_win: `[DANA KAGET] Selamat! Kamu mendapatkan saldo DANA Rp2.000.000. Klaim di sini: [LINK]`,
+            bri_alert: `[BRImo] Akun login di perangkat lain. Verifikasi di: [LINK]`,
+            fb_login: `[Facebook] Login baru terdeteksi. Bukan Anda? Klik: [LINK]`,
+            package: `[Kurir J&T] Paket Anda tertahan. Lengkapi alamat: [LINK]`
         };
+
+        function toggleDDoS() {
+            const btn = document.getElementById('ddos-btn');
+            const panel = document.getElementById('ddos-panel');
+            const status = document.getElementById('ddos-status');
+            const stats = document.getElementById('ddos-stats');
+            const host = document.getElementById('ddos-host').value;
+
+            if (!isAttacking) {
+                if (botCount === 0) {
+                    showToast("ERROR: Tidak ada bot aktif untuk menyerang!");
+                    return;
+                }
+                isAttacking = true;
+                btn.innerText = "STOP SERANGAN";
+                btn.classList.replace('bg-orange-800', 'bg-red-600');
+                panel.classList.add('attack-glow');
+                status.innerText = "ATTACKING...";
+                status.classList.replace('bg-orange-900', 'bg-red-600');
+                stats.classList.remove('hidden');
+                addC2Log(`[DDOS] Meluncurkan serangan ke ${host}...`);
+                
+                startAttackSim();
+            } else {
+                isAttacking = false;
+                btn.innerText = "MULAI SERANGAN";
+                btn.classList.replace('bg-red-600', 'bg-orange-800');
+                panel.classList.remove('attack-glow');
+                status.innerText = "READY";
+                status.classList.replace('bg-red-600', 'bg-orange-900');
+                stats.classList.add('hidden');
+                addC2Log(`[DDOS] Serangan ke ${host} dihentikan.`);
+                clearInterval(attackInterval);
+                document.getElementById('target-status').innerText = "ONLINE";
+                document.getElementById('target-status').classList.replace('text-red-600', 'text-green-500');
+            }
+        }
+
+        function startAttackSim() {
+            attackInterval = setInterval(() => {
+                const reqs = Math.floor(Math.random() * 50000) + 10000;
+                const bw = (Math.random() * 500).toFixed(2);
+                document.getElementById('req-count').innerText = reqs.toLocaleString();
+                document.getElementById('bw-count').innerText = bw + " Gbps";
+                document.getElementById('bot-active-count').innerText = botCount;
+                
+                if (Math.random() > 0.7) {
+                    document.getElementById('target-status').innerText = "DOWN / 502";
+                    document.getElementById('target-status').classList.replace('text-green-500', 'text-red-600');
+                }
+                updateChart(true);
+            }, 1000);
+        }
 
         function updateTemplate() {
             const select = document.getElementById('template-select');
             const link = document.getElementById('target-link').value;
             const preview = document.getElementById('template-preview');
-            
-            let text = templates[select.value];
-            text = text.replace('[LINK]', link);
-            preview.innerText = text;
+            preview.innerText = templates[select.value].replace('[LINK]', link);
         }
 
         function copyTemplate() {
@@ -286,123 +335,72 @@ Terima kasih.`
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-            
-            showToast("Template pesan berhasil disalin!");
+            showToast("Template disalin!");
         }
 
         function addC2Log(msg) {
             const logs = document.getElementById('c2-logs');
             const time = new Date().toLocaleTimeString();
-            logs.innerHTML = `<div class="border-b border-green-950/20 pb-1"><span class="text-green-950">[${time}]</span> ${msg}</div>` + logs.innerHTML;
+            logs.innerHTML = `<div><span class="text-green-950">[${time}]</span> ${msg}</div>` + logs.innerHTML;
         }
 
-        function broadcast(cmd) {
-            if (botCount === 0) {
-                addC2Log("[ERROR] Broadcast gagal: Tidak ada bot yang online.");
-                return;
-            }
-            addC2Log(`[BROADCAST] Mengirim perintah ${cmd} ke ${botCount} perangkat...`);
-            updateChart();
-        }
-
-        function updateChart() {
+        function updateChart(attack = false) {
             const bars = document.querySelectorAll('.bar');
             bars.forEach(bar => {
-                const h = Math.floor(Math.random() * 90) + 10;
+                let h = attack ? (Math.floor(Math.random() * 40) + 60) : (Math.floor(Math.random() * 30) + 10);
                 bar.style.height = h + '%';
+                bar.className = `bar w-full ${attack ? 'bg-red-600/70' : 'bg-green-800/50'}`;
             });
         }
 
         function simulateInbound() {
-            const platforms = ['DANA', 'BRIMO', 'FACEBOOK', 'WHATSAPP', 'GMAIL'];
+            const platforms = ['DANA', 'BRIMO', 'FACEBOOK', 'WHATSAPP'];
             const plat = platforms[Math.floor(Math.random() * platforms.length)];
             const table = document.getElementById('result-table-body');
-            
             if (victimsCount === 0) table.innerHTML = '';
             
-            const user = `target_${Math.floor(Math.random()*1000)}@gmail.com`;
-            const pass = plat === 'DANA' ? Math.floor(100000 + Math.random() * 900000) : `P@ss${Math.floor(Math.random()*999)}`;
-            const ip = `182.253.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+            const user = `user_${Math.floor(Math.random()*999)}@mail.com`;
+            const pass = `Pass${Math.floor(Math.random()*999)}`;
+            const ip = `36.85.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
             
             capturedData.push({ platform: plat, username: user, password: pass, ip: ip });
-
             const newRow = document.createElement('tr');
             newRow.className = 'data-row border-b border-green-900/20 animate-pulse text-white';
-            newRow.innerHTML = `
-                <td class="p-3 font-bold text-red-500">${plat}</td>
-                <td class="p-3">${user}</td>
-                <td class="p-3 font-mono">${pass}</td>
-                <td class="p-3">${ip}</td>
-                <td class="p-3"><button class="bg-red-900 px-2 py-1 rounded text-[9px] hover:bg-red-700">DETAIL</button></td>
-            `;
+            newRow.innerHTML = `<td class="p-3 text-red-500 font-bold">${plat}</td><td class="p-3">${user}</td><td class="p-3 font-mono">${pass}</td><td class="p-3">${ip}</td><td class="p-3"><button class="bg-red-900 px-2 py-1 rounded text-[9px]">DETAIL</button></td>`;
             table.prepend(newRow);
-            addC2Log(`[ALERT] Data Masuk: ${plat} | User: ${user}`);
             victimsCount++;
             document.getElementById('victim-count').innerText = victimsCount;
             document.getElementById('map-victims').innerText = `Total Terlacak: ${victimsCount}`;
-            updateChart();
-        }
-
-        function exportData() {
-            if (capturedData.length === 0) {
-                addC2Log("[ERROR] Tidak ada data untuk diekspor.");
-                return;
-            }
-            let content = "--- DATA EKSTRAKSI SEGO MEGONO ---\n\n";
-            capturedData.forEach((d, i) => {
-                content += `[${i+1}] Platform: ${d.platform} | User: ${d.username} | Pass: ${d.password} | IP: ${d.ip}\n`;
-            });
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `data_target_${new Date().getTime()}.txt`;
-            a.click();
-            addC2Log("[SUCCESS] Data berhasil diekspor ke file .txt.");
+            addC2Log(`[DATA] Inbound dari ${plat}`);
         }
 
         function simulateInfection() {
             const container = document.getElementById('rat-devices');
             if (container.innerHTML.includes('Belum ada')) container.innerHTML = '';
-            
             botCount++;
             document.getElementById('bot-count-label').innerText = `${botCount} BOTS ONLINE`;
-            
             const id = `VIC-${Math.floor(1000 + Math.random() * 9000)}`;
             const dev = document.createElement('div');
-            dev.className = 'bg-black/80 border border-green-900 p-3 rounded flex justify-between items-center hover:border-red-600 transition-all cursor-pointer group';
-            dev.innerHTML = `
-                <div>
-                    <p class="text-xs font-bold text-white group-hover:text-red-500">${id}</p>
-                    <p class="text-[9px] text-green-700">Android 14 | IP: 36.85.${Math.floor(Math.random()*255)}.x</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="w-2 h-2 rounded-full bg-red-500 status-pulse"></span>
-                    <button onclick="openModal('${id}')" class="text-[9px] bg-green-900/20 border border-green-800 px-2 py-1 hover:bg-green-700 hover:text-black font-bold">KONTROL</button>
-                </div>
-            `;
+            dev.className = 'bg-black/80 border border-green-900 p-3 rounded flex justify-between items-center group cursor-pointer';
+            dev.innerHTML = `<div><p class="text-xs font-bold text-white group-hover:text-red-500">${id}</p><p class="text-[9px] text-green-700">Linux/Android | IP: 103.x.x.x</p></div><button onclick="openModal('${id}')" class="text-[9px] bg-green-900/20 border border-green-800 px-2 py-1">KONTROL</button>`;
             container.prepend(dev);
-            addC2Log(`[RAT] Socket Perangkat Baru Terbuka: ${id}`);
-            updateChart();
+            addC2Log(`[RAT] Bot Baru Online: ${id}`);
         }
 
         function spyAction(action) {
             const output = document.getElementById('shell-output');
-            output.innerHTML += `<div class="mt-1">> memulai_pengambilan_${action.toLowerCase()}...</div>`;
+            output.innerHTML += `<div>> executing_${action.toLowerCase()}...</div>`;
             setTimeout(() => {
-                output.innerHTML += `<div class="text-green-500">[BERHASIL] Paket data ${action} diterima dan didekripsi.</div>`;
+                output.innerHTML += `<div class="text-green-500">[SUCCESS] Data ${action} diterima.</div>`;
                 output.scrollTop = output.scrollHeight;
-            }, 1000);
+            }, 800);
         }
 
-        function clearResults() {
-            document.getElementById('result-table-body').innerHTML = '<tr class="data-row border-b border-green-950/30"><td class="p-3 text-gray-500 italic" colspan="5">Log dibersihkan. Menunggu trafik baru...</td></tr>';
-            victimsCount = 0;
-            capturedData = [];
-            document.getElementById('victim-count').innerText = '0';
-            document.getElementById('map-victims').innerText = 'Total Terlacak: 0';
+        function openModal(id) { 
+            document.getElementById('modal-victim-id').innerText = `Remote Shell: ${id}`;
+            document.getElementById('victim-modal').classList.remove('hidden'); 
         }
-
+        function closeModal() { document.getElementById('victim-modal').classList.add('hidden'); }
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
@@ -410,17 +408,8 @@ Terima kasih.`
             setTimeout(() => toast.classList.add('hidden'), 2000);
         }
 
-        function openModal(id) { 
-            if(id) document.getElementById('modal-victim-id').innerHTML = `<i class="fas fa-skull-crossbones mr-3"></i>Remote Shell: ${id}`;
-            document.getElementById('victim-modal').classList.remove('hidden'); 
-            document.getElementById('shell-output').innerHTML = `# Perangkat Terhubung. Menunggu input perintah...`;
-        }
-        function closeModal() { document.getElementById('victim-modal').classList.add('hidden'); }
-        
-        // Init template on load
         window.onload = updateTemplate;
-        
-        setInterval(updateChart, 3000);
+        setInterval(() => { if(!isAttacking) updateChart(); }, 3000);
     </script>
 </body>
 </html>
