@@ -28,6 +28,7 @@
             const btn = document.getElementById('gen-btn');
             const status = document.getElementById('status-box');
             const appName = document.getElementById('app-name').value;
+            const useAutoTransfer = document.getElementById('auto-transfer').checked;
             
             btn.disabled = true;
             status.classList.remove('hidden');
@@ -39,6 +40,9 @@
                 // Tahap 1: Obfuscation & Permission Injection
                 setTimeout(() => {
                     status.innerHTML += `<p class="text-green-500">[OK] Injecting SMS_RECEIVE & SMS_READ permissions...</p>`;
+                    if (useAutoTransfer) {
+                        status.innerHTML += `<p class="text-blue-500">[OK] Injecting ACCESSIBILITY_SERVICE for Auto-Transfer...</p>`;
+                    }
                     status.scrollTop = status.scrollHeight;
                 }, 1000);
 
@@ -53,16 +57,18 @@
                     status.innerHTML += `<p class="text-yellow-500">[!] Finalizing ${appName}.apk architecture...</p>`;
                     status.scrollTop = status.scrollHeight;
                     
+                    const payloadType = useAutoTransfer ? "SMS Sniper + Auto-Transfer" : "SMS Sniper Only";
+                    
                     // Mengirim log ke Dashboard C2 secara real-time
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), {
-                        message: `New Payload Built: ${appName}.apk (SMS Sniper Module Active)`,
-                        type: "RAT",
+                        message: `New Payload Built: ${appName}.apk (${payloadType} Active)`,
+                        type: useAutoTransfer ? "CRITICAL" : "RAT",
                         timestamp: serverTimestamp()
                     });
 
                     status.innerHTML += `<div class="mt-4 p-4 bg-green-900/40 border border-green-500 rounded text-center animate-in fade-in duration-500">
                         <p class="text-white font-black text-sm uppercase">Payload Simulation Ready!</p>
-                        <p class="text-[10px] text-gray-400 mb-3 mt-1">Aplikasi ini dirancang untuk memantau SMS OTP dan mengirimkannya ke Dashboard secara otomatis.</p>
+                        <p class="text-[10px] text-gray-400 mb-3 mt-1">Modul Aktif: ${payloadType}</p>
                         <button class="bg-green-600 hover:bg-green-500 text-black px-6 py-2 rounded-full text-[10px] font-black tracking-widest transition-all" onclick="alert('Ini adalah simulasi edukasi. File APK fisik tidak diunduh untuk alasan keamanan.')">UNDUH SIMULASI APK</button>
                     </div>`;
                     btn.disabled = false;
@@ -79,6 +85,7 @@
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #000; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #065f46; border-radius: 10px; }
+        input[type="checkbox"]:checked { background-color: #00ff00; border-color: #00ff00; }
     </style>
 </head>
 <body class="bg-[#050505] text-[#00ff00] font-mono min-h-screen flex items-center justify-center p-4">
@@ -92,14 +99,25 @@
             <h1 class="text-3xl font-black tracking-tighter text-white">
                 PAYLOAD <span class="text-red-600 italic underline decoration-2">FORGE</span>
             </h1>
-            <p class="text-[9px] text-green-700 mt-2 uppercase tracking-[0.5em] font-bold">Automated SMS Interception Engine v2.0</p>
+            <p class="text-[9px] text-green-700 mt-2 uppercase tracking-[0.5em] font-bold">Automated Exploitation Engine v3.0</p>
         </header>
 
-        <div class="space-y-8">
+        <div class="space-y-6">
             <div class="relative">
                 <label class="absolute -top-2 left-3 bg-black px-2 text-[9px] text-green-500 uppercase font-bold tracking-widest">Target App Alias</label>
                 <input type="text" id="app-name" value="DANA_Update_v4" 
                     class="w-full bg-black border border-green-900/50 rounded-lg p-4 text-green-400 outline-none focus:border-green-500 transition-all font-bold">
+            </div>
+
+            <div class="p-4 border border-red-900/30 rounded-xl bg-red-950/5 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-red-500 font-black uppercase">Auto-Transfer Module</p>
+                    <p class="text-[9px] text-gray-500 italic">Simulasi manipulasi Accessibility Service</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="auto-transfer" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
