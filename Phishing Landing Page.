@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 Control Center | Sego Megono</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
+        body { font-family: 'JetBrains+Mono', monospace; background-color: #050505; color: #00ff00; }
+        .terminal-box { background: rgba(0, 20, 0, 0.9); border: 1px solid #004400; }
+        .data-row:hover { background: rgba(0, 255, 0, 0.1); }
+        .status-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .scanline {
+            width: 100%; height: 2px; background: rgba(0, 255, 0, 0.1);
+            position: absolute; animation: move 8s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes move { from { top: 0; } to { top: 100%; } }
+        
+        .tab-active { border-bottom: 2px solid #ef4444; color: white; }
+    </style>
+</head>
+<body class="p-4 md:p-8 overflow-x-hidden">
+    <div class="scanline"></div>
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-green-900 pb-6">
+        <div>
+            <h1 class="text-2xl font-black tracking-tighter text-white">C2 COMMAND & <span class="text-red-600">CONTROL</span></h1>
+            <p class="text-xs text-green-700 font-bold uppercase tracking-[0.3em]">Sego Megono Operational Intelligence</p>
+        </div>
+        <div class="flex gap-4">
+            <div class="text-right">
+                <p class="text-[10px] text-gray-500 uppercase">Listener Status</p>
+                <p class="text-sm font-bold text-green-400 status-pulse"><i class="fas fa-satellite-dish mr-2"></i>ACTIVE ON PORT 443</p>
+            </div>
+            <div class="h-10 w-[1px] bg-green-900"></div>
+            <div class="text-right">
+                <p class="text-[10px] text-gray-500 uppercase">Active Victims</p>
+                <p id="victim-count" class="text-xl font-black text-white">0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left Column -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Result Table -->
+            <div class="terminal-box rounded-lg overflow-hidden">
+                <div class="bg-green-950/30 px-4 py-2 flex justify-between items-center border-b border-green-900">
+                    <span class="text-xs font-bold uppercase"><i class="fas fa-user-secret mr-2"></i>Inbound Credentials</span>
+                    <button onclick="clearResults()" class="text-[10px] bg-red-900/50 hover:bg-red-800 px-2 py-1 rounded">CLEAR LOG</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[11px]">
+                        <thead class="bg-black/50 text-green-600 uppercase">
+                            <tr>
+                                <th class="p-3">Platform</th>
+                                <th class="p-3">Username/Email</th>
+                                <th class="p-3">Password/PIN</th>
+                                <th class="p-3">IP Address</th>
+                                <th class="p-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result-table-body">
+                            <tr class="data-row border-b border-green-950/30">
+                                <td class="p-3 text-gray-500 italic" colspan="5">Menunggu data masuk dari link phishing...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payload Generator Section -->
+            <div class="terminal-box rounded-lg overflow-hidden">
+                <div class="bg-red-950/30 px-4 py-2 border-b border-red-900 flex items-center">
+                    <span class="text-xs font-bold uppercase text-red-500"><i class="fas fa-flask mr-2"></i>Attack Payload Generator</span>
+                </div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-[10px] text-gray-500 uppercase block mb-2 font-bold">Select Target Template</label>
+                        <select id="payload-type" class="w-full bg-black border border-green-900 p-2 text-xs rounded outline-none focus:border-red-600">
+                            <option value="dana">DANA e-Wallet (OTP Page)</option>
+                            <option value="brimo">BRImo Mobile Banking (Login)</option>
+                            <option value="facebook">Facebook Security Warning</option>
+                            <option value="whatsapp">WhatsApp Device Link QR</option>
+                        </select>
+                        <button onclick="generateShortLink()" class="mt-4 w-full bg-red-700 hover:bg-red-600 text-white font-bold py-2 rounded text-xs transition-all uppercase">
+                            Deploy & Generate Link
+                        </button>
+                    </div>
+                    <div class="bg-black/40 p-3 rounded border border-green-900/30">
+                        <label class="text-[10px] text-gray-500 uppercase block mb-1 font-bold">Generated Attack URL</label>
+                        <div id="generated-url" class="text-xs text-blue-400 break-all font-mono py-2">--- Waiting for generation ---</div>
+                        <p class="text-[9px] text-gray-600 mt-2 italic">*Link ini akan secara otomatis mengirimkan data ke tabel di atas saat target mengisi form.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RAT Devices -->
+            <div class="terminal-box rounded-lg overflow-hidden">
+                <div class="bg-green-950/30 px-4 py-2 border-b border-green-900 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase"><i class="fas fa-mobile-alt mr-2"></i>Infected Devices</span>
+                </div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="rat-devices">
+                    <p class="text-xs text-gray-600 italic">Belum ada perangkat terhubung.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+            <div class="terminal-box rounded-lg p-4">
+                <h3 class="text-xs font-bold mb-4 uppercase border-b border-green-900 pb-2">Operational Controls</h3>
+                <div class="space-y-3">
+                    <button onclick="simulateInbound()" class="w-full bg-green-800 hover:bg-green-700 text-black font-bold py-2 rounded text-xs transition-all uppercase">
+                        Manual Simulation (Test)
+                    </button>
+                    <button onclick="simulateInfection()" class="w-full bg-red-800 hover:bg-red-700 text-white font-bold py-2 rounded text-xs transition-all uppercase">
+                        Simulate Infection
+                    </button>
+                </div>
+            </div>
+
+            <div class="terminal-box rounded-lg p-4 h-64 relative overflow-hidden bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')] bg-center bg-no-repeat bg-contain">
+                <h3 class="text-xs font-bold mb-2 uppercase">Victim Location Map</h3>
+                <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <span class="text-[10px] animate-pulse text-red-500 font-bold"><i class="fas fa-crosshairs mr-2"></i>TRACKING ACTIVE</span>
+                </div>
+            </div>
+
+            <div class="terminal-box rounded-lg p-4">
+                <h3 class="text-xs font-bold mb-2 uppercase border-b border-green-900 pb-2">System Logs</h3>
+                <div id="c2-logs" class="text-[9px] text-green-800 h-48 overflow-y-auto space-y-1 font-mono">
+                    <div>[INFO] C2 Initialized at 0x00FF41</div>
+                    <div>[INFO] Listener established on Port 443</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for RAT -->
+    <div id="victim-modal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center p-4 z-50">
+        <div class="max-w-2xl w-full terminal-box rounded-xl p-6 border-red-900">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-red-500 uppercase tracking-tighter"><i class="fas fa-skull-crossbones mr-3"></i>Remote System Shell</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-black/60 p-4 rounded border border-green-900/50">
+                    <p class="text-[10px] text-green-700 font-bold uppercase mb-3">Live Spy Functions</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="spyAction('SMS')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Capture SMS</button>
+                        <button onclick="spyAction('Camera')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Live Camera</button>
+                        <button onclick="spyAction('Mic')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Record Audio</button>
+                        <button onclick="spyAction('GPS')" class="bg-red-950/40 hover:bg-red-800 border border-red-900 p-2 text-[9px] font-bold uppercase transition-all">Get Location</button>
+                    </div>
+                </div>
+                <div class="bg-black/60 p-4 rounded border border-green-900/50">
+                    <p class="text-[10px] text-green-700 font-bold uppercase mb-3">Data Extraction</p>
+                    <ul class="text-[9px] space-y-2 text-white/70">
+                        <li><i class="fas fa-database mr-2"></i> WhatsApp_DB.crypt14 (Ready)</li>
+                        <li><i class="fas fa-images mr-2"></i> DCIM_Camera_Upload (4.2GB)</li>
+                        <li><i class="fas fa-key mr-2"></i> browser_saved_passwords.json</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="shell-output" class="bg-black p-4 rounded h-40 text-[10px] overflow-y-auto font-mono text-blue-400 border border-blue-900/30">
+                # Waiting for command...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let victimsCount = 0;
+
+        function addC2Log(msg) {
+            const logs = document.getElementById('c2-logs');
+            const time = new Date().toLocaleTimeString();
+            logs.innerHTML = `<div class="border-b border-green-950/20 pb-1"><span class="text-green-950">[${time}]</span> ${msg}</div>` + logs.innerHTML;
+        }
+
+        function generateShortLink() {
+            const type = document.getElementById('payload-type').value;
+            const randomID = Math.random().toString(36).substring(7);
+            const urlDisplay = document.getElementById('generated-url');
+            
+            addC2Log(`[EXE] Generating payload for platform: ${type.toUpperCase()}`);
+            urlDisplay.innerText = "Encrypting...";
+            
+            setTimeout(() => {
+                const finalUrl = `https://secure-verify-${type}.sego-megono.net/auth/${randomID}`;
+                urlDisplay.innerText = finalUrl;
+                addC2Log(`[READY] Payload deployed at: ${finalUrl}`);
+            }, 1000);
+        }
+
+        function simulateInbound() {
+            const platforms = ['DANA', 'BRIMO', 'FACEBOOK', 'WHATSAPP', 'GMAIL'];
+            const plat = platforms[Math.floor(Math.random() * platforms.length)];
+            const table = document.getElementById('result-table-body');
+            
+            if (victimsCount === 0) table.innerHTML = '';
+            
+            const newRow = document.createElement('tr');
+            newRow.className = 'data-row border-b border-green-900/20 animate-pulse text-white';
+            const user = `target_${Math.floor(Math.random()*1000)}@gmail.com`;
+            const pass = plat === 'DANA' ? Math.floor(100000 + Math.random() * 900000) : `P@ss${Math.floor(Math.random()*999)}`;
+            
+            newRow.innerHTML = `
+                <td class="p-3 font-bold text-red-500">${plat}</td>
+                <td class="p-3">${user}</td>
+                <td class="p-3 font-mono">${pass}</td>
+                <td class="p-3">182.253.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}</td>
+                <td class="p-3"><button class="bg-red-900 px-2 py-1 rounded text-[9px] hover:bg-red-700">DETAILS</button></td>
+            `;
+            table.prepend(newRow);
+            addC2Log(`[ALERT] Inbound Data: ${plat} | User: ${user}`);
+            victimsCount++;
+            document.getElementById('victim-count').innerText = victimsCount;
+            
+            setTimeout(() => newRow.classList.remove('animate-pulse'), 2000);
+        }
+
+        function simulateInfection() {
+            const container = document.getElementById('rat-devices');
+            if (container.innerHTML.includes('Belum ada')) container.innerHTML = '';
+            
+            const id = `VIC-${Math.floor(1000 + Math.random() * 9000)}`;
+            const dev = document.createElement('div');
+            dev.className = 'bg-black/80 border border-green-900 p-3 rounded flex justify-between items-center hover:border-red-600 transition-all cursor-pointer';
+            dev.innerHTML = `
+                <div>
+                    <p class="text-xs font-bold text-white">${id}</p>
+                    <p class="text-[9px] text-green-700">Android 14 | IP: 36.85.x.x</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-red-500 status-pulse"></span>
+                    <button onclick="openModal()" class="text-[9px] bg-green-900/20 border border-green-800 px-2 py-1 hover:bg-green-700 hover:text-black font-bold">CONTROL</button>
+                </div>
+            `;
+            container.prepend(dev);
+            addC2Log(`[RAT] New Device Socket Opened: ${id}`);
+        }
+
+        function spyAction(action) {
+            const output = document.getElementById('shell-output');
+            output.innerHTML += `<div>> initiating_${action.toLowerCase()}_capture...</div>`;
+            setTimeout(() => {
+                output.innerHTML += `<div class="text-green-500">[SUCCESS] Data ${action} received and encrypted.</div>`;
+                output.scrollTop = output.scrollHeight;
+            }, 1500);
+        }
+
+        function clearResults() {
+            document.getElementById('result-table-body').innerHTML = '<tr class="data-row border-b border-green-950/30"><td class="p-3 text-gray-500 italic" colspan="5">Logs cleared. Waiting for new traffic...</td></tr>';
+            victimsCount = 0;
+            document.getElementById('victim-count').innerText = '0';
+        }
+
+        function openModal() { document.getElementById('victim-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('victim-modal').classList.add('hidden'); }
+    </script>
+</body>
+</html>
