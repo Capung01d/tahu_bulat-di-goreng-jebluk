@@ -1,215 +1,166 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, query, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Skull, Zap, Terminal, Activity, Download, Smartphone, Radio } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 - Payload Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
-// --- CONFIG FIREBASE KAMU ---
-const firebaseConfig = {
-  apiKey: "AIzaSyAMmcOF9E5LA8Cu3dxvstyPCzjd_ZZ_NIM",
-  authDomain: "tahu-bulat-dad9d.firebaseapp.com",
-  projectId: "tahu-bulat-dad9d",
-  storageBucket: "tahu-bulat-dad9d.firebasestorage.app",
-  messagingSenderId: "784968244179",
-  appId: "1:784968244179:web:fbf29b0745bfdc5fb52d26",
-  measurementId: "G-JK1NHZDRN8"
-};
+        // CONFIG FIREBASE KAMU
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMmcOF9E5LA8Cu3dxvstyPCzjd_ZZ_NIM",
+            authDomain: "tahu-bulat-dad9d.firebaseapp.com",
+            projectId: "tahu-bulat-dad9d",
+            appId: "1:784968244179:web:fbf29b0745bfdc5fb52d26"
+        };
 
-// Inisialisasi Firebase menggunakan config pribadimu
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = "tahu-bulat-c2-pro";
 
-// Gunakan App ID unik agar tidak bentrok dengan user lain di project yang sama
-const appId = "tahu-bulat-c2-pro"; 
+        window.generatePayload = async () => {
+            const btn = document.getElementById('gen-btn');
+            const status = document.getElementById('status-box');
+            const appName = document.getElementById('app-name').value;
+            const useAutoTransfer = document.getElementById('auto-transfer').checked;
+            
+            btn.disabled = true;
+            status.classList.remove('hidden');
+            status.innerHTML = `<p class="text-blue-400 animate-pulse font-bold">>>> Initializing Compiler Engine...</p>`;
 
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [logs, setLogs] = useState([]);
-  const [victims, setVictims] = useState([]);
-  const [bots, setBots] = useState([]);
-  const [isAttacking, setIsAttacking] = useState(false);
-  const [ddosTarget, setDdosTarget] = useState('1.1.1.1');
-  const [activeModal, setActiveModal] = useState(null);
-  const [stats, setStats] = useState({ reqs: 0, bw: 0 });
+            try {
+                // FIX: Pastikan Auth selesai sebelum lanjut ke Firestore
+                const userCredential = await signInAnonymously(auth);
+                const user = userCredential.user;
+                
+                if (!user) {
+                    throw new Error("Gagal melakukan autentikasi anonim.");
+                }
 
-  // 1. Auth Lifecycle
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        // Login anonim agar bisa akses Firestore
-        await signInAnonymously(auth);
-      } catch (err) {
-        console.error("Auth Error:", err);
-      }
-    };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+                // Tahap 1: Obfuscation & Permission Injection
+                setTimeout(() => {
+                    status.innerHTML += `<p class="text-green-500">[OK] Injecting SMS_RECEIVE & SMS_READ permissions...</p>`;
+                    if (useAutoTransfer) {
+                        status.innerHTML += `<p class="text-blue-500">[OK] Injecting ACCESSIBILITY_SERVICE for Auto-Transfer...</p>`;
+                    }
+                    status.scrollTop = status.scrollHeight;
+                }, 1000);
 
-  // 2. Real-Time Listeners (Hanya jalan jika sudah login)
-  useEffect(() => {
-    if (!user) return;
+                // Tahap 2: Firebase Bridge Hooking
+                setTimeout(() => {
+                    status.innerHTML += `<p class="text-green-500">[OK] Hooking Firebase Bridge to project: ${firebaseConfig.projectId}</p>`;
+                    status.scrollTop = status.scrollHeight;
+                }, 2000);
 
-    // Path sesuai mandat: /artifacts/{appId}/public/data/{collection}
-    const vRef = collection(db, 'artifacts', appId, 'public', 'data', 'victims');
-    const unsubVictims = onSnapshot(vRef, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setVictims(data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
-    }, (err) => console.error("Victims Error:", err));
+                // Tahap 3: Finalizing APK Architecture
+                setTimeout(async () => {
+                    status.innerHTML += `<p class="text-yellow-500">[!] Finalizing ${appName}.apk architecture...</p>`;
+                    status.scrollTop = status.scrollHeight;
+                    
+                    const payloadType = useAutoTransfer ? "SMS Sniper + Auto-Transfer" : "SMS Sniper Only";
+                    
+                    // FIX: Gunakan path koleksi yang sesuai dengan aturan permission Canvas
+                    // /artifacts/{appId}/public/data/{collectionName}
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), {
+                        message: `New Payload Built: ${appName}.apk (${payloadType} Active)`,
+                        type: useAutoTransfer ? "CRITICAL" : "RAT",
+                        timestamp: serverTimestamp()
+                    });
 
-    const bRef = collection(db, 'artifacts', appId, 'public', 'data', 'bots');
-    const unsubBots = onSnapshot(bRef, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBots(data);
-    }, (err) => console.error("Bots Error:", err));
+                    status.innerHTML += `<div class="mt-4 p-4 bg-green-900/40 border border-green-500 rounded text-center animate-in fade-in duration-500">
+                        <p class="text-white font-black text-sm uppercase">Payload Simulation Ready!</p>
+                        <p class="text-[10px] text-gray-400 mb-3 mt-1">Modul Aktif: ${payloadType}</p>
+                        <button class="bg-green-600 hover:bg-green-500 text-black px-6 py-2 rounded-full text-[10px] font-black tracking-widest transition-all" onclick="alert('Ini adalah simulasi edukasi. File APK fisik tidak diunduh untuk alasan keamanan.')">UNDUH SIMULASI APK</button>
+                    </div>`;
+                    btn.disabled = false;
+                    status.scrollTop = status.scrollHeight;
+                }, 3500);
 
-    const lRef = collection(db, 'artifacts', appId, 'public', 'data', 'logs');
-    const unsubLogs = onSnapshot(lRef, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setLogs(data.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)).slice(0, 50));
-    }, (err) => console.error("Logs Error:", err));
+            } catch (err) {
+                console.error("Firebase Error Details:", err);
+                status.innerHTML += `<p class="text-red-500 font-bold">[ERROR] Build Failed: ${err.message}</p>`;
+                btn.disabled = false;
+            }
+        };
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #000; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #065f46; border-radius: 10px; }
+        input[type="checkbox"]:checked { background-color: #00ff00; border-color: #00ff00; }
+    </style>
+</head>
+<body class="bg-[#050505] text-[#00ff00] font-mono min-h-screen flex items-center justify-center p-4">
+    <div class="fixed inset-0 pointer-events-none opacity-5 bg-[linear-gradient(rgba(0,255,0,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.1)_1px,transparent_1px)] [background-size:40px_40px]"></div>
 
-    return () => {
-      unsubVictims();
-      unsubBots();
-      unsubLogs();
-    };
-  }, [user]);
-
-  // Actions
-  const addLog = async (message, type = 'INFO') => {
-    if (!user) return;
-    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'logs'), {
-      message,
-      type,
-      timestamp: serverTimestamp()
-    });
-  };
-
-  const simulateInbound = async () => {
-    if (!user) return;
-    const platforms = ['DANA', 'BRIMO', 'BCA', 'FACEBOOK'];
-    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'victims'), {
-      platform: platforms[Math.floor(Math.random() * platforms.length)],
-      username: `user_${Math.random().toString(36).substring(7)}@gmail.com`,
-      password: `Pass${Math.floor(Math.random() * 9999)}`,
-      ip: `${Math.floor(Math.random()*255)}.x.x.x`,
-      timestamp: Date.now()
-    });
-    addLog("Data Kredensial Baru Diterima", "SUCCESS");
-  };
-
-  const simulateBot = async () => {
-    if (!user) return;
-    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bots'), {
-      deviceId: `VIC-${Math.floor(1000 + Math.random() * 9000)}`,
-      os: 'Android 14',
-      status: 'online',
-      timestamp: Date.now()
-    });
-    addLog("Botnet Socket Terhubung", "RAT");
-  };
-
-  useEffect(() => {
-    let interval;
-    if (isAttacking) {
-      interval = setInterval(() => {
-        setStats({ reqs: Math.floor(Math.random() * 100000) + 50000, bw: (Math.random() * 800).toFixed(2) });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isAttacking]);
-
-  return (
-    <div className="min-h-screen bg-[#050505] text-[#00ff00] font-mono p-8 overflow-x-hidden">
-      <div className="fixed inset-0 pointer-events-none opacity-10 bg-[radial-gradient(#00ff00_1px,transparent_1px)] [background-size:20px_20px]"></div>
-      
-      <header className="flex justify-between items-center mb-8 border-b border-green-900 pb-6 relative z-10">
-        <div>
-          <h1 className="text-3xl font-black text-white flex items-center gap-3">
-            <Skull className="text-red-600 w-8 h-8" /> 
-            C2 PANEL <span className="text-red-600 text-xl font-light">TAHU BULAT</span>
-          </h1>
-          <p className="text-[10px] text-green-700 font-bold tracking-[0.4em]">CONNECTED TO: {firebaseConfig.projectId}</p>
-        </div>
-        
-        <div className="text-right">
-          <div className="flex items-center gap-2 text-green-400">
-            <span className={`w-2 h-2 rounded-full ${user ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
-            <span className="text-xs font-bold">{user ? 'LIVE SESSION' : 'CONNECTING...'}</span>
-          </div>
-          <p className="text-[10px] text-gray-500">ID: {user?.uid?.substring(0,8)}</p>
-        </div>
-      </header>
-
-      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Victims Table */}
-          <div className="bg-black/80 border border-green-900 rounded-lg overflow-hidden">
-            <div className="bg-green-950/20 px-4 py-3 border-b border-green-900 flex justify-between">
-              <h2 className="text-xs font-black uppercase flex items-center gap-2"><Terminal size={14} /> EXFIL DATA</h2>
-              <button onClick={simulateInbound} className="text-[9px] bg-green-900/40 px-3 py-1 rounded">SEND TEST DATA</button>
+    <div class="max-w-xl w-full border-2 border-green-900 rounded-2xl p-8 bg-black/80 backdrop-blur-xl relative z-10 shadow-[0_0_40px_rgba(0,255,0,0.1)]">
+        <header class="mb-10 border-b border-green-900/50 pb-6 text-center">
+            <div class="inline-block p-3 bg-red-600/10 rounded-full mb-4">
+                <svg class="w-10 h-10 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"/><path fill-rule="evenodd" d="M11 2H9v1h2V2zM6 4v1h8V4a2 2 0 00-2-2H8a2 2 0 00-2 2zM2 9a2 2 0 012-2h1v10H4a2 2 0 01-2-2V9zm15-2a2 2 0 012 2v6a2 2 0 01-2 2h-1V7h1zM6 7v10h8V7H6z" clip-rule="evenodd"/></svg>
             </div>
-            <table className="w-full text-left text-[11px]">
-              <thead className="bg-black text-green-600 uppercase border-b border-green-900">
-                <tr><th className="p-4">Platform</th><th className="p-4">User</th><th className="p-4">Pass</th><th className="p-4">IP</th></tr>
-              </thead>
-              <tbody className="divide-y divide-green-950/30">
-                {victims.map(v => (
-                  <tr key={v.id} className="hover:bg-green-500/5">
-                    <td className="p-4 font-black text-red-500">{v.platform}</td>
-                    <td className="p-4 text-gray-300">{v.username}</td>
-                    <td className="p-4 font-mono text-white/80">{v.password}</td>
-                    <td className="p-4 text-blue-500">{v.ip}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            <h1 class="text-3xl font-black tracking-tighter text-white">
+                PAYLOAD <span class="text-red-600 italic underline decoration-2">FORGE</span>
+            </h1>
+            <p class="text-[9px] text-green-700 mt-2 uppercase tracking-[0.5em] font-bold">Automated Exploitation Engine v3.0</p>
+        </header>
 
-          {/* DDoS Section */}
-          <div className={`bg-black/80 border ${isAttacking ? 'border-red-600' : 'border-orange-900'} rounded-lg p-5`}>
-            <h2 className="text-xs font-black text-orange-500 mb-4 uppercase flex items-center gap-2"><Zap size={14} /> ATTACK VECTOR</h2>
-            <div className="flex gap-4">
-              <input type="text" value={ddosTarget} onChange={e=>setDdosTarget(e.target.value)} className="flex-1 bg-black border border-orange-900 p-2 text-xs" />
-              <button onClick={() => setIsAttacking(!isAttacking)} className={`px-6 py-2 text-xs font-black ${isAttacking ? 'bg-red-600' : 'bg-orange-600'}`}>
-                {isAttacking ? 'STOP' : 'FIRE'}
-              </button>
+        <div class="space-y-6">
+            <div class="relative">
+                <label class="absolute -top-2 left-3 bg-black px-2 text-[9px] text-green-500 uppercase font-bold tracking-widest">Target App Alias</label>
+                <input type="text" id="app-name" value="DANA_Update_v4" 
+                    class="w-full bg-black border border-green-900/50 rounded-lg p-4 text-green-400 outline-none focus:border-green-500 transition-all font-bold">
             </div>
-          </div>
+
+            <div class="p-4 border border-red-900/30 rounded-xl bg-red-950/5 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] text-red-500 font-black uppercase">Auto-Transfer Module</p>
+                    <p class="text-[9px] text-gray-500 italic">Simulasi manipulasi Accessibility Service</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="auto-transfer" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 border border-green-900/20 rounded-xl bg-green-950/5">
+                    <p class="text-[8px] text-gray-500 uppercase mb-2 font-black tracking-tighter">Injection Rights</p>
+                    <p class="text-[10px] text-green-400 font-bold flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> SYSTEM_SMS_READ
+                    </p>
+                </div>
+                <div class="p-4 border border-green-900/20 rounded-xl bg-green-950/5">
+                    <p class="text-[8px] text-gray-500 uppercase mb-2 font-black tracking-tighter">Stealth Protocol</p>
+                    <p class="text-[10px] text-blue-500 font-bold flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> ICON_HIDER_MOD
+                    </p>
+                </div>
+            </div>
+
+            <button id="gen-btn" onclick="generatePayload()" 
+                class="w-full bg-[#00ff00] text-black font-black py-5 rounded-xl hover:bg-white transition-all uppercase tracking-[0.2em] text-xs shadow-[0_0_20px_rgba(0,255,0,0.2)] active:scale-95">
+                GENERATE SIMULATED APK
+            </button>
+
+            <div id="status-box" class="hidden bg-black/60 border border-green-900/30 rounded-xl p-5 h-56 overflow-y-auto text-[10px] font-mono space-y-2 custom-scrollbar shadow-inner">
+                <!-- Build process logs -->
+            </div>
         </div>
 
-        <div className="space-y-6">
-          {/* Bots */}
-          <div className="bg-black/80 border border-blue-900 rounded-lg p-5">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xs font-black text-blue-500 uppercase flex items-center gap-2"><Radio size={14} /> ZOMBIES</h2>
-              <button onClick={simulateBot} className="text-[8px] border border-blue-900 px-2 py-1">ADD</button>
+        <div class="mt-10 pt-6 border-t border-green-900/20 text-center">
+            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-3">Technical Architecture</p>
+            <div class="flex justify-center gap-8 opacity-40 grayscale">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/Android_robot.svg" class="h-5" alt="Android">
+                <img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png" class="h-5" alt="Firebase">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Java_Logo.svg" class="h-5" alt="Java">
             </div>
-            {bots.map(bot => (
-              <div key={bot.id} className="text-[10px] mb-2 p-2 bg-blue-950/10 border border-blue-900/30 rounded flex justify-between items-center">
-                <span>{bot.deviceId}</span>
-                <span className="text-blue-500 uppercase text-[8px]">Online</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Logs */}
-          <div className="bg-black/80 border border-green-900 rounded-lg p-5 h-64 overflow-y-auto custom-scrollbar">
-            <h2 className="text-xs font-black mb-3 uppercase">Activity Logs</h2>
-            {logs.map(log => (
-              <div key={log.id} className="text-[9px] mb-1 border-b border-green-900/10">
-                <span className="text-gray-600">[{log.timestamp?.seconds ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString() : '...'}]</span>
-                <span className="ml-2">{log.message}</span>
-              </div>
-            ))}
-          </div>
         </div>
-      </main>
     </div>
-  );
-}
+</body>
+</html>
